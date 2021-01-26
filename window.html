@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Text Editor</title>
+
+     <link rel="stylesheet" href="styles/window.css">
+
+</head>
+
+
+<body>
+
+     <h1>Text Editor</h1>
+
+     <div id="main" contenteditable="true"></div>
+
+     <!--<input style='display: none' id='up' type='file' accept=".txt" />!-->
+     <button id='up-btn'>Choose Text File!</button>
+
+     <script>
+
+          const {
+               ipcRenderer
+          } = require('electron')
+
+
+          document.getElementById("main").style.display = 'none';
+          document.querySelector("h1").style.display = 'none';
+
+
+          document.getElementById("up-btn").onclick = (function () {
+
+               //document.getElementById('up').click();
+               ipcRenderer.send('open-file', 'true')
+
+          });
+
+          ipcRenderer.on('recieved-file', (event, arg) => {
+
+
+               //alert(arg);
+
+               document.getElementById("up-btn").style.display = 'none';
+               document.getElementById("main").style.display = 'block';
+               document.querySelector("h1").style.display = 'block';
+
+               document.getElementById("main").innerHTML = arg;
+
+               ipcRenderer.on('file-title', (event, arg2) => {
+
+                    document.title = `${arg2} - Text Editor`;
+                    document.querySelector("h1").innerText = arg2;
+
+               })
+
+
+               document.getElementById("main").addEventListener("input", function () {
+
+                    ipcRenderer.send('save-data', document.getElementById("main").innerHTML);
+
+
+               }, false);
+
+
+          });
+
+     </script>
+
+</body>
+
+</html>
